@@ -4,6 +4,7 @@ Plugin Name: Jeco IP Blacklist
 Description: Automatically updates .htaccess with the latest IP blacklist to block spam bots.
 Version: 2.0.0
 Author: Jesus Carrero
+Requires at least: 6.0
 Requires PHP: 8.4
 */
 
@@ -366,136 +367,143 @@ if (!class_exists('JECO_IPBL')) {
             $ajax_url = admin_url('admin-ajax.php');
 
             ?>
-                        <div class="wrap" id="jeco-ipbl-wrap">
-                            <h1><span class="dashicons dashicons-shield-alt" style="font-size:28px;vertical-align:middle;margin-right:8px;"></span> Jeco IP Blacklist</h1>
-                            <p class="description">Automatically downloads and injects the latest spam-bot IP blacklists from <a href="https://myip.ms/" target="_blank" rel="noopener">Myip.ms</a> into your <code>.htaccess</code> file.</p>
-                            <hr>
+            <div class="wrap" id="jeco-ipbl-wrap">
+                <h1><span class="dashicons dashicons-shield-alt"
+                        style="font-size:28px;vertical-align:middle;margin-right:8px;"></span> Jeco IP Blacklist</h1>
+                <p class="description">Automatically downloads and injects the latest spam-bot IP blacklists from <a
+                        href="https://myip.ms/" target="_blank" rel="noopener">Myip.ms</a> into your <code>.htaccess</code> file.
+                </p>
+                <hr>
 
-                            <!-- Status Bar -->
-                            <div style="display:flex;gap:24px;flex-wrap:wrap;margin:16px 0;">
-                                <div class="jeco-status-card">
-                                    <strong>Next Scheduled Run</strong><br>
-                                    <?php echo $next_run
-                                        ? esc_html(get_date_from_gmt(gmdate('Y-m-d H:i:s', $next_run), 'Y-m-d H:i:s') . ' (local)')
-                                        : '<span style="color:#d63638;">Not scheduled</span>'; ?>
-                                </div>
-                                <div class="jeco-status-card">
-                                    <strong>Last Update</strong><br>
-                                    <?php if ($last_entry): ?>
-                                            <?php echo $last_entry['success']
-                                                ? '<span style="color:#00a32a;">&#10003; Success</span>'
-                                                : '<span style="color:#d63638;">&#10007; Failed</span>'; ?>
-                                            &mdash; <?php echo esc_html($last_entry['time']); ?>
-                                    <?php else: ?>
-                                            <em>No updates run yet.</em>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
+                <!-- Status Bar -->
+                <div style="display:flex;gap:24px;flex-wrap:wrap;margin:16px 0;">
+                    <div class="jeco-status-card">
+                        <strong>Next Scheduled Run</strong><br>
+                        <?php echo $next_run
+                            ? esc_html(get_date_from_gmt(gmdate('Y-m-d H:i:s', $next_run), 'Y-m-d H:i:s') . ' (local)')
+                            : '<span style="color:#d63638;">Not scheduled</span>'; ?>
+                    </div>
+                    <div class="jeco-status-card">
+                        <strong>Last Update</strong><br>
+                        <?php if ($last_entry): ?>
+                            <?php echo $last_entry['success']
+                                ? '<span style="color:#00a32a;">&#10003; Success</span>'
+                                : '<span style="color:#d63638;">&#10007; Failed</span>'; ?>
+                            &mdash; <?php echo esc_html($last_entry['time']); ?>
+                        <?php else: ?>
+                            <em>No updates run yet.</em>
+                        <?php endif; ?>
+                    </div>
+                </div>
 
-                            <!-- Manual Update Button -->
-                            <div style="margin-bottom:24px;">
-                                <button id="jeco-manual-update" class="button button-primary" data-nonce="<?php echo esc_attr($manual_nonce); ?>" data-ajax="<?php echo esc_url($ajax_url); ?>">
-                                    <span class="dashicons dashicons-update" style="vertical-align:middle;"></span> Update Now
-                                </button>
-                                <span id="jeco-update-status" style="margin-left:12px;font-style:italic;"></span>
-                            </div>
+                <!-- Manual Update Button -->
+                <div style="margin-bottom:24px;">
+                    <button id="jeco-manual-update" class="button button-primary"
+                        data-nonce="<?php echo esc_attr($manual_nonce); ?>" data-ajax="<?php echo esc_url($ajax_url); ?>">
+                        <span class="dashicons dashicons-update" style="vertical-align:middle;"></span> Update Now
+                    </button>
+                    <span id="jeco-update-status" style="margin-left:12px;font-style:italic;"></span>
+                </div>
 
-                            <!-- Settings Form -->
-                            <form method="POST" action="">
-                                <?php wp_nonce_field('jeco_ipbl_settings_save'); ?>
-                                <table class="form-table">
-                                    <tr>
-                                        <th scope="row"><label for="jeco_ipbl_cron_hour">Cron Job Start Time (HH:MM)</label></th>
-                                        <td>
-                                            <input type="time" id="jeco_ipbl_cron_hour" name="jeco_ipbl_cron_hour" value="<?php echo esc_attr($cron_hour); ?>" />
-                                            <p class="description">The time each day when the blacklist will be automatically downloaded and applied.</p>
-                                        </td>
-                                    </tr>
-                                </table>
-                                <p class="submit"><input type="submit" name="submit" class="button-primary" value="Save Changes"></p>
-                            </form>
+                <!-- Settings Form -->
+                <form method="POST" action="">
+                    <?php wp_nonce_field('jeco_ipbl_settings_save'); ?>
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row"><label for="jeco_ipbl_cron_hour">Cron Job Start Time (HH:MM)</label></th>
+                            <td>
+                                <input type="time" id="jeco_ipbl_cron_hour" name="jeco_ipbl_cron_hour"
+                                    value="<?php echo esc_attr($cron_hour); ?>" />
+                                <p class="description">The time each day when the blacklist will be automatically downloaded and
+                                    applied.</p>
+                            </td>
+                        </tr>
+                    </table>
+                    <p class="submit"><input type="submit" name="submit" class="button-primary" value="Save Changes"></p>
+                </form>
 
-                            <hr>
+                <hr>
 
-                            <!-- Activity Log -->
-                            <h2>Activity Log <span style="font-size:13px;font-weight:normal;">(last <?php echo self::MAX_LOG_ENTRIES; ?> runs)</span></h2>
-                            <?php if (empty($log)): ?>
-                                    <p><em>No activity recorded yet.</em></p>
-                            <?php else: ?>
-                                    <table class="widefat striped" style="max-width:800px;">
-                                        <thead>
-                                            <tr>
-                                                <th>Date / Time</th>
-                                                <th>Status</th>
-                                                <th>Message</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php foreach ($log as $entry): ?>
-                                                    <tr>
-                                                        <td><?php echo esc_html($entry['time']); ?></td>
-                                                        <td>
-                                                            <?php echo $entry['success']
-                                                                ? '<span style="color:#00a32a;font-weight:600;">&#10003; Success</span>'
-                                                                : '<span style="color:#d63638;font-weight:600;">&#10007; Failed</span>'; ?>
-                                                        </td>
-                                                        <td><?php echo esc_html($entry['message']); ?></td>
-                                                    </tr>
-                                            <?php endforeach; ?>
-                                        </tbody>
-                                    </table>
-                            <?php endif; ?>
-                        </div>
+                <!-- Activity Log -->
+                <h2>Activity Log <span style="font-size:13px;font-weight:normal;">(last <?php echo self::MAX_LOG_ENTRIES; ?>
+                        runs)</span></h2>
+                <?php if (empty($log)): ?>
+                    <p><em>No activity recorded yet.</em></p>
+                <?php else: ?>
+                    <table class="widefat striped" style="max-width:800px;">
+                        <thead>
+                            <tr>
+                                <th>Date / Time</th>
+                                <th>Status</th>
+                                <th>Message</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($log as $entry): ?>
+                                <tr>
+                                    <td><?php echo esc_html($entry['time']); ?></td>
+                                    <td>
+                                        <?php echo $entry['success']
+                                            ? '<span style="color:#00a32a;font-weight:600;">&#10003; Success</span>'
+                                            : '<span style="color:#d63638;font-weight:600;">&#10007; Failed</span>'; ?>
+                                    </td>
+                                    <td><?php echo esc_html($entry['message']); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
+            </div>
 
-                        <style>
-                            .jeco-status-card {
-                                background: #fff;
-                                border: 1px solid #c3c4c7;
-                                border-radius: 4px;
-                                padding: 12px 20px;
-                                min-width: 220px;
-                                line-height: 2;
-                            }
-                        </style>
+            <style>
+                .jeco-status-card {
+                    background: #fff;
+                    border: 1px solid #c3c4c7;
+                    border-radius: 4px;
+                    padding: 12px 20px;
+                    min-width: 220px;
+                    line-height: 2;
+                }
+            </style>
 
-                        <script>
-                        document.addEventListener('DOMContentLoaded', function () {
-                            const btn    = document.getElementById('jeco-manual-update');
-                            const status = document.getElementById('jeco-update-status');
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const btn = document.getElementById('jeco-manual-update');
+                    const status = document.getElementById('jeco-update-status');
 
-                            btn.addEventListener('click', function () {
-                                btn.disabled = true;
-                                status.textContent = 'Running update…';
-                                status.style.color = '#555';
+                    btn.addEventListener('click', function () {
+                        btn.disabled = true;
+                        status.textContent = 'Running update…';
+                        status.style.color = '#555';
 
-                                const formData = new FormData();
-                                formData.append('action', 'jeco_ipbl_manual_update');
-                                formData.append('nonce', btn.dataset.nonce);
+                        const formData = new FormData();
+                        formData.append('action', 'jeco_ipbl_manual_update');
+                        formData.append('nonce', btn.dataset.nonce);
 
-                                fetch(btn.dataset.ajax, { method: 'POST', body: formData })
-                                    .then(res => res.json())
-                                    .then(data => {
-                                        if (data.success) {
-                                            status.textContent = '✔ ' + data.data.message;
-                                            status.style.color = '#00a32a';
-                                        } else {
-                                            status.textContent = '✘ ' + data.data.message;
-                                            status.style.color = '#d63638';
-                                        }
-                                    })
-                                    .catch(() => {
-                                        status.textContent = '✘ An unexpected error occurred.';
-                                        status.style.color = '#d63638';
-                                    })
-                                    .finally(() => {
-                                        btn.disabled = false;
-                                        // Reload the log table after a short delay
-                                        setTimeout(() => location.reload(), 2500);
-                                    });
+                        fetch(btn.dataset.ajax, { method: 'POST', body: formData })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.success) {
+                                    status.textContent = '✔ ' + data.data.message;
+                                    status.style.color = '#00a32a';
+                                } else {
+                                    status.textContent = '✘ ' + data.data.message;
+                                    status.style.color = '#d63638';
+                                }
+                            })
+                            .catch(() => {
+                                status.textContent = '✘ An unexpected error occurred.';
+                                status.style.color = '#d63638';
+                            })
+                            .finally(() => {
+                                btn.disabled = false;
+                                // Reload the log table after a short delay
+                                setTimeout(() => location.reload(), 2500);
                             });
-                        });
-                        </script>
-                        <?php
+                    });
+                });
+            </script>
+            <?php
         }
 
         // -----------------------------------------------------------------------
