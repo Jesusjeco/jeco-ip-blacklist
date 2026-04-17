@@ -5,7 +5,7 @@ Description: Automatically updates .htaccess with the latest IP blacklist to blo
 Version: 2.0.0
 Author: Jesus Carrero
 Requires at least: 6.0
-Requires PHP: 8.4
+Requires PHP: 8.2
 */
 
 // Exit if accessed directly
