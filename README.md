@@ -26,7 +26,7 @@ GitHub: [Jesusjeco](https://github.com/Jesusjeco)
 ## Requirements
 
 - WordPress 6.0+
-- PHP 8.4+
+- PHP 8.2+
 
 ---
 
